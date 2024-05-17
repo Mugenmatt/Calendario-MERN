@@ -1,8 +1,9 @@
-import { Navbar } from ".."
+import { CalendarEvent, Navbar, CalendarModal } from ".."
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import esES from 'date-fns/locale/es';
 import { addHours, parse, startOfWeek, getDay, format } from 'date-fns';
+import { useState } from "react";
 
 interface EventProps {
   title: string;
@@ -12,6 +13,7 @@ interface EventProps {
   bgColor: string;
   user: {id: string; name: string}
 }
+
 
 const getMessagesES = () => {
   return {
@@ -57,8 +59,11 @@ const events = [{
 
 export const CalendarPage = () => {
 
+  const [lastView, setLastView] = useState( localStorage.getItem('lastView' || 'week') )
+
   const eventStyleGetter = ( event: EventProps, start: Date, end: Date, isSelected: boolean ) => {
-    console.log(event, start, end, isSelected);
+    // console.log(event, start, end, isSelected);
+
     const style = {
       backgroundColor: '#347CF7',
       opacity: 0.8,
@@ -67,6 +72,21 @@ export const CalendarPage = () => {
     }
 
     return style;
+  }
+
+  
+  const onDoubleClick = (event) => {
+    console.log({doubleClick: event});
+  }
+
+  const onSelect = (event) => {
+    console.log({click: event});
+  }
+
+  const onViewChanged = (event) => {
+    console.log({viewChanged: event});
+    localStorage.setItem('lastView', event)
+    setLastView(event)
   }
 
   return (
@@ -81,7 +101,15 @@ export const CalendarPage = () => {
         culture="es"
         messages={ getMessagesES() }
         eventPropGetter={ eventStyleGetter }
+        components={{
+          event: CalendarEvent,
+        }}
+        onDoubleClickEvent={ onDoubleClick } // Doble click en el evento
+        onSelectEvent={ onSelect } // 
+        onView={ onViewChanged } // mes dia agenda
+        defaultView={ 'agenda' } // vista inicial
       />
+      <CalendarModal />
     </>
   )
 }
