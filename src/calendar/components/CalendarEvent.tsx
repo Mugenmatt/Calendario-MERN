@@ -1,5 +1,14 @@
 
-export const CalendarEvent = (props) => {
+interface Props {
+  event: {
+    title: string;
+    user: {
+      name: string;
+    }
+  };
+}
+
+export const CalendarEvent = (props: Props) => {
     console.log(props);
     
   return (

@@ -1,9 +1,10 @@
-import { CalendarEvent, Navbar, CalendarModal } from ".."
+import { format, getDay, parse, startOfWeek } from 'date-fns';
+import esES from 'date-fns/locale/es';
+import { useState } from "react";
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import esES from 'date-fns/locale/es';
-import { addHours, parse, startOfWeek, getDay, format } from 'date-fns';
-import { useState } from "react";
+import { CalendarEvent, CalendarModal, FabAddNewEvent, FabDelete, Navbar } from "../";
+import { useCalendarStore, useUiStore } from "../../hooks";
 
 interface EventProps {
   title: string;
@@ -45,19 +46,11 @@ const localizer = dateFnsLocalizer({
   locales,
 })
 
-const events = [{
-  title: 'Mi cumpleaños',
-  notes: '¡Cumplo 31!',
-  start: new Date(),
-  end: addHours(new Date(), 2),
-  bgColor: '#fafafa',
-  user: {
-    id: '123',
-    name: 'Matías'
-  }
-}]
 
 export const CalendarPage = () => {
+
+  const { openDateModal, closeDateModal } = useUiStore()
+  const { events, setActiveEvent } = useCalendarStore()
 
   const [lastView, setLastView] = useState( localStorage.getItem('lastView' || 'week') )
 
@@ -76,11 +69,13 @@ export const CalendarPage = () => {
 
   
   const onDoubleClick = (event) => {
-    console.log({doubleClick: event});
+    // console.log({doubleClick: event});
+    openDateModal();
   }
 
   const onSelect = (event) => {
-    console.log({click: event});
+    // console.log({click: event});
+    setActiveEvent(event);
   }
 
   const onViewChanged = (event) => {
@@ -92,24 +87,26 @@ export const CalendarPage = () => {
   return (
     <>
       <Navbar />
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: 'calc( 100vh - 80px )' }}
-        culture="es"
-        messages={ getMessagesES() }
-        eventPropGetter={ eventStyleGetter }
-        components={{
-          event: CalendarEvent,
-        }}
-        onDoubleClickEvent={ onDoubleClick } // Doble click en el evento
-        onSelectEvent={ onSelect } // 
-        onView={ onViewChanged } // mes dia agenda
-        defaultView={ 'agenda' } // vista inicial
-      />
+        <Calendar
+          localizer={localizer}
+          events={events}
+          startAccessor="start"
+          endAccessor="end"
+          style={{ height: 'calc( 100vh - 80px )' }}
+          culture="es"
+          messages={ getMessagesES() }
+          eventPropGetter={ eventStyleGetter }
+          components={{
+            event: CalendarEvent,
+          }}
+          onDoubleClickEvent={ onDoubleClick } // Doble click en el evento
+          onSelectEvent={ onSelect } // 
+          onView={ onViewChanged } // mes dia agenda
+          defaultView={ 'agenda' } // vista inicial
+        />
       <CalendarModal />
+      <FabAddNewEvent />
+      <FabDelete />
     </>
   )
 }
